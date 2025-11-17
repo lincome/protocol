@@ -1,4 +1,4 @@
-module github.com/openimsdk/protocol
+module github.com/lincome/protocol
 
 go 1.22.7
 
