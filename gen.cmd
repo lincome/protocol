@@ -1,12 +1,15 @@
 @echo off
 setlocal
 
+rem Define protoc path
+set "PROTOC=E:\wukongim\openim\protoc-29.0-win64\bin\protoc.exe"
+
 rem Define array elements
 set "PROTO_NAMES=auth conversation errinfo relation group jssdk msg msggateway push rtc sdkws third user statistics wrapperspb"
 
 rem Loop through each element in the array
 for %%i in (%PROTO_NAMES%) do (
-    protoc --go_out=./%%i --go_opt=module=github.com/openimsdk/protocol/%%i %%i/%%i.proto
+    %PROTOC% --go_out=./%%i --go_opt=module=github.com/lincome/protocol/%%i %%i/%%i.proto
     if ERRORLEVEL 1 (
         echo error processing %%i.proto
         exit /b %ERRORLEVEL%
@@ -16,7 +19,7 @@ for %%i in (%PROTO_NAMES%) do (
 rem Generate Go-grpc code
 
 for %%i in (%PROTO_NAMES%) do (
-    protoc --go-grpc_out=./%%i --go-grpc_opt=module=github.com/openimsdk/protocol/%%i %%i/%%i.proto
+    %PROTOC% --go-grpc_out=./%%i --go-grpc_opt=module=github.com/lincome/protocol/%%i %%i/%%i.proto
     if ERRORLEVEL 1 (
         echo error processing %%i.proto
         exit /b %ERRORLEVEL%

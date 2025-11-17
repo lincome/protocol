@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openimsdk/protocol/constant"
+	"github.com/lincome/protocol/constant"
 )
 
 func (x *CreateGroupReq) Check() error {
