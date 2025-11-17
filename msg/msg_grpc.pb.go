@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	Msg_ModifyMsg_FullMethodName                        = "/openim.msg.msg/ModifyMsg"
 	Msg_GetMaxSeq_FullMethodName                        = "/openim.msg.msg/GetMaxSeq"
 	Msg_GetMaxSeqs_FullMethodName                       = "/openim.msg.msg/GetMaxSeqs"
 	Msg_GetHasReadSeqs_FullMethodName                   = "/openim.msg.msg/GetHasReadSeqs"
@@ -59,6 +60,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MsgClient interface {
+	ModifyMsg(ctx context.Context, in *ModifyMsgReq, opts ...grpc.CallOption) (*ModifyMsgResp, error)
 	// Get min and max seq (including the user and specified groups)
 	GetMaxSeq(ctx context.Context, in *sdkws.GetMaxSeqReq, opts ...grpc.CallOption) (*sdkws.GetMaxSeqResp, error)
 	// Get the max seq for the conversation list
@@ -115,6 +117,16 @@ type msgClient struct {
 
 func NewMsgClient(cc grpc.ClientConnInterface) MsgClient {
 	return &msgClient{cc}
+}
+
+func (c *msgClient) ModifyMsg(ctx context.Context, in *ModifyMsgReq, opts ...grpc.CallOption) (*ModifyMsgResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModifyMsgResp)
+	err := c.cc.Invoke(ctx, Msg_ModifyMsg_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *msgClient) GetMaxSeq(ctx context.Context, in *sdkws.GetMaxSeqReq, opts ...grpc.CallOption) (*sdkws.GetMaxSeqResp, error) {
@@ -451,6 +463,7 @@ func (c *msgClient) GetLastMessage(ctx context.Context, in *GetLastMessageReq, o
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility.
 type MsgServer interface {
+	ModifyMsg(context.Context, *ModifyMsgReq) (*ModifyMsgResp, error)
 	// Get min and max seq (including the user and specified groups)
 	GetMaxSeq(context.Context, *sdkws.GetMaxSeqReq) (*sdkws.GetMaxSeqResp, error)
 	// Get the max seq for the conversation list
@@ -509,6 +522,9 @@ type MsgServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMsgServer struct{}
 
+func (UnimplementedMsgServer) ModifyMsg(context.Context, *ModifyMsgReq) (*ModifyMsgResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyMsg not implemented")
+}
 func (UnimplementedMsgServer) GetMaxSeq(context.Context, *sdkws.GetMaxSeqReq) (*sdkws.GetMaxSeqResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMaxSeq not implemented")
 }
@@ -627,6 +643,24 @@ func RegisterMsgServer(s grpc.ServiceRegistrar, srv MsgServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Msg_ServiceDesc, srv)
+}
+
+func _Msg_ModifyMsg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyMsgReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ModifyMsg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_ModifyMsg_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ModifyMsg(ctx, req.(*ModifyMsgReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Msg_GetMaxSeq_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1230,6 +1264,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "openim.msg.msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ModifyMsg",
+			Handler:    _Msg_ModifyMsg_Handler,
+		},
 		{
 			MethodName: "GetMaxSeq",
 			Handler:    _Msg_GetMaxSeq_Handler,

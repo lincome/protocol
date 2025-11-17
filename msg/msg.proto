@@ -387,7 +387,18 @@ message GetLastMessageResp {
   map<string,sdkws.MsgData> msgs = 1;
 }
 
+message ModifyMsgReq {
+  string userID = 1;
+  string conversationID = 2;
+  int64 seq = 3;
+  int32 contentType = 4;
+  bytes content = 5;
+}
+
+message ModifyMsgResp {}
+
 service msg {
+  rpc ModifyMsg(ModifyMsgReq) returns (ModifyMsgResp);
   // Get min and max seq (including the user and specified groups)
   rpc GetMaxSeq(sdkws.GetMaxSeqReq) returns (sdkws.GetMaxSeqResp);
   // Get the max seq for the conversation list
